@@ -1,90 +1,87 @@
-const API_KEY = "13f3ce21964b3e54137d5666e61e5299"; // Your GNews API Key
-const BASE_URL = "https://gnews.io/api/v4/top-headlines";
+const GNEWS_API_KEY = "13f3ce21964b3e54137d5666e61e5299";
+const UNSPLASH_ACCESS_KEY = "Nj6xVdzauELWLEeLMrzZ-gqPkLpD-iPlEP1AYZHWv1Q";
+
 const newsContainer = document.getElementById("news-container");
-const searchInput = document.getElementById("search-input");
-const searchButton = document.getElementById("search-button");
-const loadMoreButton = document.getElementById("load-more");
-const darkModeToggle = document.getElementById("dark-mode-toggle");
-const categoryButtons = document.querySelectorAll(".category-btn");
+const searchInput = document.getElementById("news-query");
+const searchBtn = document.getElementById("search-btn");
+const filterButtons = document.querySelectorAll(".filter-btn");
+const loadMoreBtn = document.getElementById("load-more");
+const toggleThemeBtn = document.getElementById("toggle-theme");
 
+let category = "general";
 let page = 1;
-let category = "general"; // Default category
-let searchQuery = "";
 
-// Fetch and display news
+// Fetch news from GNews API
 async function fetchNews() {
+    const url = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=us&max=6&page=${page}&apikey=${GNEWS_API_KEY}`;
+    
     try {
-        const url = `${BASE_URL}?category=${category}&lang=en&max=10&page=${page}&apikey=${API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
-
-        if (data.articles) {
-            data.articles.forEach(article => {
-                const newsCard = document.createElement("div");
-                newsCard.classList.add("news-card");
-
-                newsCard.innerHTML = `
-                    <img src="${article.image}" alt="News Image">
-                    <h3>${article.title}</h3>
-                    <p>${article.description || "No description available."}</p>
-                    <a href="${article.url}" target="_blank">Read More</a>
-                `;
-
-                newsContainer.appendChild(newsCard);
-            });
-        } else {
-            console.error("No articles found");
-        }
+        displayNews(data.articles);
     } catch (error) {
         console.error("Error fetching news:", error);
     }
 }
 
-// Search news
-async function searchNews() {
-    newsContainer.innerHTML = "";
-    searchQuery = searchInput.value.trim();
-    page = 1;
+// Fetch images from Unsplash API
+async function fetchNewsImage(query) {
+    const url = `https://api.unsplash.com/photos/random?query=${query}&client_id=${UNSPLASH_ACCESS_KEY}`;
+    
     try {
-        const url = `https://gnews.io/api/v4/search?q=${searchQuery}&lang=en&max=10&page=${page}&apikey=${API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
+        return data.urls?.regular || "default-image.jpg"; 
+    } catch (error) {
+        return "default-image.jpg";
+    }
+}
 
-        newsContainer.innerHTML = "";
-        data.articles.forEach(article => {
-            const newsCard = document.createElement("div");
-            newsCard.classList.add("news-card");
-
-            newsCard.innerHTML = `
-                <img src="${article.image}" alt="News Image">
+// Display news articles
+async function displayNews(articles) {
+    for (const article of articles) {
+        const imageUrl = await fetchNewsImage(article.title);
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `
+            <div class="card-header">
+                <img src="${imageUrl}" alt="News Image">
+            </div>
+            <div class="card-content">
                 <h3>${article.title}</h3>
                 <p>${article.description || "No description available."}</p>
-                <a href="${article.url}" target="_blank">Read More</a>
-            `;
-
-            newsContainer.appendChild(newsCard);
-        });
-    } catch (error) {
-        console.error("Error fetching news:", error);
+                <a href="${article.url}" target="_blank" class="read-more">Read More</a>
+            </div>
+        `;
+        newsContainer.appendChild(card);
     }
 }
 
-// Dark Mode Toggle
-darkModeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
+// Event Listeners
+searchBtn.addEventListener("click", () => {
+    category = searchInput.value || "general";
+    page = 1;
+    newsContainer.innerHTML = "";
+    fetchNews();
 });
 
-// Category Buttons
-categoryButtons.forEach(button => {
-    button.addEventListener("click", () => {
-        category = button.getAttribute("data-category");
+filterButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+        category = btn.dataset.category;
         page = 1;
         newsContainer.innerHTML = "";
         fetchNews();
     });
 });
 
+loadMoreBtn.addEventListener("click", () => {
+    page++;
+    fetchNews();
+});
+
+toggleThemeBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+});
+
 // Initial Fetch
 fetchNews();
-searchButton.addEventListener("click", searchNews);
-loadMoreButton.addEventListener("click", () => { page++; fetchNews(); });
