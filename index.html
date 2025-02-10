@@ -3,34 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News App with Dark Mode</title>
+    <title>News App</title>
     <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
 </head>
 <body>
-    <nav class="navbar">
-        <h1>📰 News App</h1>
-        <button id="dark-mode-toggle">🌙</button>
+    <nav>
+        <div class="container flex main-nav">
+            <div class="company-logo">
+                <h1>News App</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="news-query" class="news-input" placeholder="Search News...">
+                <button id="search-btn" class="search-button">Search</button>
+            </div>
+            <button id="toggle-theme" class="toggle-theme">🌙</button>
+        </div>
     </nav>
 
-    <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search news...">
-        <button id="search-button">🔍 Search</button>
+    <div class="container filters flex">
+        <button class="filter-btn" data-category="general">General</button>
+        <button class="filter-btn" data-category="technology">Technology</button>
+        <button class="filter-btn" data-category="business">Business</button>
+        <button class="filter-btn" data-category="entertainment">Entertainment</button>
+        <button class="filter-btn" data-category="health">Health</button>
+        <button class="filter-btn" data-category="sports">Sports</button>
     </div>
 
-    <div class="category-container">
-        <button class="category-btn" data-category="world">World</button>
-        <button class="category-btn" data-category="business">Business</button>
-        <button class="category-btn" data-category="technology">Tech</button>
-        <button class="category-btn" data-category="sports">Sports</button>
-        <button class="category-btn" data-category="health">Health</button>
-        <button class="category-btn" data-category="science">Science</button>
-        <button class="category-btn" data-category="entertainment">Entertainment</button>
-    </div>
+    <div class="container cards-container" id="news-container"></div>
 
-    <div class="news-container" id="news-container"></div>
+    <button id="load-more" class="load-more">Load More</button>
 
-    <button id="load-more">Load More</button>
-
-    <script src="script.js"></script>
 </body>
 </html>
